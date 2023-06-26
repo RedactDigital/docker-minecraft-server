@@ -1,23 +1,38 @@
 #!/bin/bash
 
+# Install minecraft server if it doesn't exist
+if [ ! -f $WORKDIR/$PROJECT*.jar ]; then
+    # Downloads API docs
+    # https://api.papermc.io/docs/swagger-ui/index.html?configUrl=/openapi/swagger-config#/download-controller/download
+    BASE_URL="https://api.papermc.io/v2/projects/$PROJECT"
+    # If the version is not set, we will use the latest version
+    if [ -z "$VERSION" ]; then
+        echo "No version specified, using latest version..."
+        VERSION=$(curl -s $BASE_URL | jq -r '.versions[-1]')
+        BUILD=$(curl -s $BASE_URL/versions/$VERSION | jq -r '.builds[-1]')
+    fi
+
+    # If the build is not set, we will use the latest build
+    if [ -z "$BUILD" ]; then
+        echo "No build specified, using latest build..."
+        BUILD=$(curl -s $BASE_URL/versions/$VERSION | jq -r '.builds[-1]')
+    fi
+
+    VERSION_URL="$BASE_URL/versions/$VERSION/builds/$BUILD/downloads/$PROJECT-$VERSION-$BUILD.jar"
+
+    echo "Downloading Minecraft server..."
+    wget $VERSION_URL -O $WORKDIR/$PROJECT-$VERSION-$BUILD.jar
+fi
+
 # Create the eula file if it doesn't exist
 if [ ! -f $WORKDIR/eula.txt ]; then
     echo "eula=$EULA" >$WORKDIR/eula.txt
 fi
 
-# If the /config has been mounted, loop through all the files in it
-# and create a symlink to them. If the file already exists, rename
-# it to .bak and then create the symlink
-if [ -d /config ]; then
-    for file in /config/*; do
-        filename=$(basename $file)
-        if [ -f $WORKDIR/$filename ]; then
-            echo "File $filename already exists, renaming to $filename.bak"
-            mv $WORKDIR/$filename $WORKDIR/$filename.bak
-        fi
-        echo "Creating symlink for $filename"
-        ln -s $file $WORKDIR/$filename
-    done
+# We are also going to create an empty log file if it doesn't exist
+# so we can avoid the error message when we try to tail the log file
+if [ ! -f $WORKDIR/logs/latest.log ]; then
+    touch $WORKDIR/logs/latest.log
 fi
 
 # Start the server script without waiting for it to finish
