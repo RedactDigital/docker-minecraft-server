@@ -5,19 +5,10 @@ if [ ! -f $WORKDIR/eula.txt ]; then
     echo "eula=$EULA" >$WORKDIR/eula.txt
 fi
 
-# If the /config has been mounted, loop through all the files in it
-# and create a symlink to them. If the file already exists, rename
-# it to .bak and then create the symlink
-if [ -d /config ]; then
-    for file in /config/*; do
-        filename=$(basename $file)
-        if [ -f $WORKDIR/$filename ]; then
-            echo "File $filename already exists, renaming to $filename.bak"
-            mv $WORKDIR/$filename $WORKDIR/$filename.bak
-        fi
-        echo "Creating symlink for $filename"
-        ln -s $file $WORKDIR/$filename
-    done
+# We are also going to create an empty log file if it doesn't exist
+# so we can avoid the error message when we try to tail the log file
+if [ ! -f $WORKDIR/logs/latest.log ]; then
+    touch $WORKDIR/logs/latest.log
 fi
 
 # Start the server script without waiting for it to finish

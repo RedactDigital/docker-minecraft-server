@@ -7,15 +7,17 @@ echo "Stopping Minecraft server..."
 # If it's still running, we want to keep waiting
 # If it's not running, we want to break out of the loop
 while true; do
-    if tmux capture-pane -pt $TMUX_SESSION | grep -q "Closing Server"; then
+    # Get the last line of the log file
+    LAST_LINE=$(tail -3 $WORKDIR/logs/latest.log)
+
+    # If the last line of the log file contains "Closing Server", we know the server has stopped
+    if echo "$LAST_LINE" | grep -q "Closing Server"; then
+        echo "Server has stopped!"
         break
     fi
     sleep 1
 done
 
-echo "Minecraft server stopped"
-
 # Close the tmux session
 tmux kill-session -t $TMUX_SESSION
-
-echo "Session closed"
+echo "Minecraft server stopped!"
