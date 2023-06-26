@@ -1,6 +1,12 @@
 FROM ubuntu:22.04
 
-ENV PAPER_URL=https://api.papermc.io/v2/projects/paper/versions/1.20.1/builds/48/downloads/paper-1.20.1-48.jar
+ARG VERSION
+ARG BUILD
+
+ENV VERSION=$VERSION
+ENV BUILD=$BUILD
+
+ENV PROJECT=paper
 ENV WORKDIR=/minecraft
 # Add tmux session name (Used in the scripts we copy later on)
 ENV TMUX_SESSION=minecraft
@@ -35,9 +41,6 @@ RUN apt-get -y autoremove \
     && rm -rf /var/tmp/*
 
 WORKDIR $WORKDIR
-
-# Install velocity
-RUN wget $PAPER_URL -O paper.jar
 
 # Copy scripts folder and make them executable
 COPY scripts scripts

@@ -1,5 +1,29 @@
 #!/bin/bash
 
+# Install minecraft server if it doesn't exist
+if [ ! -f $WORKDIR/$PROJECT*.jar ]; then
+    # Downloads API docs
+    # https://api.papermc.io/docs/swagger-ui/index.html?configUrl=/openapi/swagger-config#/download-controller/download
+    BASE_URL="https://api.papermc.io/v2/projects/$PROJECT"
+    # If the version is not set, we will use the latest version
+    if [ -z "$VERSION" ]; then
+        echo "No version specified, using latest version..."
+        VERSION=$(curl -s $BASE_URL | jq -r '.versions[-1]')
+        BUILD=$(curl -s $BASE_URL/versions/$VERSION | jq -r '.builds[-1]')
+    fi
+
+    # If the build is not set, we will use the latest build
+    if [ -z "$BUILD" ]; then
+        echo "No build specified, using latest build..."
+        BUILD=$(curl -s $BASE_URL/versions/$VERSION | jq -r '.builds[-1]')
+    fi
+
+    VERSION_URL="$BASE_URL/versions/$VERSION/builds/$BUILD/downloads/$PROJECT-$VERSION-$BUILD.jar"
+
+    echo "Downloading Minecraft server..."
+    wget $VERSION_URL -O $WORKDIR/$PROJECT-$VERSION-$BUILD.jar
+fi
+
 # Create the eula file if it doesn't exist
 if [ ! -f $WORKDIR/eula.txt ]; then
     echo "eula=$EULA" >$WORKDIR/eula.txt

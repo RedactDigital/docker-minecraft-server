@@ -12,6 +12,12 @@
 ---
 To start the server, you must accept the EULA by setting an environment variable `EULA` to `TRUE`.
 
+If you have a specific version of Paper MC you want to use, you can set the environment variable `VERSION` and the server will download that version. If you don't set the `VERSION` environment variable, the server will download the latest version of Paper MC.
+
+You can also specify the `BUILD` environment variable to download a specific build of Paper MC. If you don't set the `BUILD` environment variable, the server will download the latest build of Paper MC.
+
+Note: If you specify a `BUILD` environment variable, but don't specify a `VERSION` environment variable, the server will download the latest version of Paper MC and ignore the `BUILD` environment variable. If you specify both a `VERSION` environment variable and a `BUILD` environment variable, the server will download the specified version and build of Paper MC. If you specify a `VERSION` environment variable, but don't specify a `BUILD` environment variable, the server will download the latest build of the specified version of Paper MC.
+
 To use the default settings, you don't need to mount any volumes. However, if you want to change the default settings, you need to mount a volume to `/config`. Make sure that the name of the settings file you want to override is exactly the same as the name of the file you want to change. For example, if you want to change the `server.properties` file, you should name the new file `server.properties` in the config directory; otherwise, the new file won't be used. If you need examples of the default settings, mount a volume to `/config` and run the container once. The default settings will be copied to the volume.
 
 To use your own worlds, you must mount a volume to the following directories: `/minecraft/world`, `/minecraft/world_nether`, and `/minecraft/world_the_end`.
@@ -42,6 +48,7 @@ services:
       - ./custom-world-the-end:/minecraft/world_the_end
     environment:
       EULA: 'true'
+      VERSION_URL: '' # Optional
 
 volumes:
   minecraft-server:
@@ -60,5 +67,6 @@ docker run -d \
   -v ./custom-world-nether:/minecraft/world_nether \
   -v ./custom-world-the-end:/minecraft/world_the_end \
   -e EULA='true' \
+  -e VERSION_URL='' \ # Optional
   ghcr.io/redactdigital/docker-minecraft-server:latest
 ```
