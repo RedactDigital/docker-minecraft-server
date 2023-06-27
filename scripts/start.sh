@@ -58,14 +58,6 @@ if [ -d /config ]; then
         fi
     done
 
-    # Now we make want to give the user the correct permissions to the /config directory
-    # and all the files in it. We are givving rw permissions to everyone so we can edit
-    # the files from outside the container
-    echo "Setting permissions for /config"
-    chown -R $UID:$GID /config
-    chmod -R 744 /config
-    chmod -R 666 /config/*
-
     # Now we loop through all the files in it and create a symlink to them.
     # Since we already checked if the file exists in /config, we don't need to
     # check if the file exists in /config before creating the symlink
