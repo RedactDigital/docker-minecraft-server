@@ -1,9 +1,17 @@
 FROM ubuntu:22.04
 
+ENV USER=minecraft
+ENV UID=1000
+ENV GID=1000
 ENV WORKDIR=/minecraft
 # Vars used in scripts and entrypoint
 ENV TMUX_SESSION=minecraft
 ENV PROJECT=paper
+
+# Create user and group
+RUN groupadd --gid ${GID} ${USER} && \
+    useradd --create-home --shell /bin/bash --uid ${UID} --gid ${GID} ${USER} && \
+    usermod -aG sudo ${USER}
 
 # Install dependencies
 RUN apt update && apt upgrade -y && apt install -y --no-install-recommends \
@@ -35,10 +43,11 @@ RUN apt-get -y autoremove \
     && rm -rf /tmp/* \
     && rm -rf /var/tmp/*
 
+USER ${USER}
 WORKDIR $WORKDIR
 
 # Copy scripts folder and make them executable
-COPY scripts scripts
+COPY --chown=${USER}:${USER} scripts scripts
 RUN chmod +x scripts/*
 
 # Add commands to bashrc
@@ -48,7 +57,7 @@ RUN echo "alias start='bash $WORKDIR/scripts/start.sh'" >> ~/.bashrc && \
     echo "alias debug='bash $WORKDIR/scripts/debug.sh'" >> ~/.bashrc
 
 # Copy entrypoint
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY --chown=${USER}:${USER} entrypoint.sh /home/${USER}/entrypoint.sh
+RUN chmod +x /home/${USER}/entrypoint.sh
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["sh", "-c", "/home/$USER/entrypoint.sh"]
