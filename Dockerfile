@@ -1,15 +1,9 @@
 FROM ubuntu:22.04
 
-ARG VERSION
-ARG BUILD
-
-ENV VERSION=$VERSION
-ENV BUILD=$BUILD
-
-ENV PROJECT=paper
 ENV WORKDIR=/minecraft
-# Add tmux session name (Used in the scripts we copy later on)
+# Vars used in scripts and entrypoint
 ENV TMUX_SESSION=minecraft
+ENV PROJECT=paper
 
 # Install dependencies
 RUN apt update && apt upgrade -y && apt install -y --no-install-recommends \
@@ -20,7 +14,8 @@ RUN apt update && apt upgrade -y && apt install -y --no-install-recommends \
     ca-certificates \
     apt-transport-https \
     gnupg \
-    tmux
+    tmux \
+    jq
 
 # Import the Amazon Corretto public key and repository
 RUN curl https://apt.corretto.aws/corretto.key | apt-key add - && \

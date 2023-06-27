@@ -48,7 +48,8 @@ services:
       - ./custom-world-the-end:/minecraft/world_the_end
     environment:
       EULA: 'true'
-      VERSION_URL: '' # Optional
+      VERSION: '' # Optional
+      BUILD: '' # Optional
 
 volumes:
   minecraft-server:
@@ -67,6 +68,7 @@ docker run -d \
   -v ./custom-world-nether:/minecraft/world_nether \
   -v ./custom-world-the-end:/minecraft/world_the_end \
   -e EULA='true' \
-  -e VERSION_URL='' \ # Optional
+  -e VERSION='' \
+  -e BUILD='' \
   ghcr.io/redactdigital/docker-minecraft-server:latest
 ```
